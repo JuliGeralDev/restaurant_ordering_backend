@@ -18,6 +18,7 @@ custom:
     target: node18
     platform: node
     concurrency: 10
+    plugins: esbuild.plugins.js
 
 functions:
   hello:
