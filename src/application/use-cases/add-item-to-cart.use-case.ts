@@ -46,8 +46,11 @@ export class AddItemToCartUseCase {
     };
 
     let order = await this.orderRepository.findById(input.orderId);
+    const correlationId = randomUUID();
+    let isNewOrder = false;
 
     if (!order) {
+      isNewOrder = true;
       order = {
         orderId: input.orderId,
         userId: input.userId,
@@ -62,6 +65,22 @@ export class AddItemToCartUseCase {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+
+      // Register order creation event
+      const orderCreatedEvent: TimelineEvent = {
+        eventId: randomUUID(),
+        timestamp: new Date().toISOString(),
+        orderId: input.orderId,
+        userId: input.userId,
+        type: 'ORDER_STATUS_CHANGED',
+        source: 'api',
+        correlationId,
+        payload: {
+          status: 'CREATED',
+          previousStatus: null,
+        },
+      };
+      await this.timelineRepository.save(orderCreatedEvent);
     }
 
     // Add item to order
@@ -94,22 +113,43 @@ export class AddItemToCartUseCase {
 
     await this.orderRepository.save(order);
 
-    const event: TimelineEvent = {
+    // Register item event
+    const itemEvent: TimelineEvent = {
       eventId: randomUUID(),
       timestamp: new Date().toISOString(),
       orderId: input.orderId,
       userId: input.userId,
       type: eventType,
       source: 'api',
-      correlationId: randomUUID(),
+      correlationId,
       payload: {
         productId: input.productId,
+        name: input.name,
         quantity: input.quantity,
+        basePrice: input.basePrice,
       },
     };
-    await this.timelineRepository.save(event);
+    await this.timelineRepository.save(itemEvent);
 
-    // Return the order (cart) with the new item and the event that registers the action
-    return { order, event };
+    // Register pricing recalculation event
+    const pricingEvent: TimelineEvent = {
+      eventId: randomUUID(),
+      timestamp: new Date().toISOString(),
+      orderId: input.orderId,
+      userId: input.userId,
+      type: 'PRICING_CALCULATED',
+      source: 'api',
+      correlationId,
+      payload: {
+        subtotal: subtotal.value,
+        tax: 0,
+        serviceFee: 0,
+        total: total.value,
+      },
+    };
+    await this.timelineRepository.save(pricingEvent);
+
+    // Return the order (cart) with the new item and the last event
+    return { order, event: itemEvent };
   }
 }

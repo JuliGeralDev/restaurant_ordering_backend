@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "serverless offline --noPrependStageInUrl"
+    "dev": "serverless offline --noPrependStageInUrl",
+    "init:db": "ts-node scripts/init-db.ts",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "setup": "npm run docker:up && npm run init:db"
   },
   "keywords": [],
   "author": "Juliana García Corredor @JuliGeralDev juliana.c@gmail.com",
