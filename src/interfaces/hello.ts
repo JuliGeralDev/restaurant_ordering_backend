@@ -1,8 +1,19 @@
+import { AddItemToCartUseCase } from '@/application/use-cases/add-item-to-cart.use-case';
+
 export const handler = async () => {
+  const useCase = new AddItemToCartUseCase();
+
+  const result = useCase.execute({
+    orderId: 'order-1',
+    userId: 'user-1',
+    productId: 'product-1',
+    name: 'Burger',
+    basePrice: 10000,
+    quantity: 2,
+  });
+
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      message: 'Hello working',
-    }),
+    body: JSON.stringify(result),
   };
 };
