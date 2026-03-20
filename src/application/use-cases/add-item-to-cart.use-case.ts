@@ -3,6 +3,8 @@ import { Money } from '@/domain/value-objects/money.vo';
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 import { OrderRepository } from '@/domain/repositories/order.repository';
 import { randomUUID } from 'crypto';
+import { PricingService } from '@/domain/services/pricing.service';
+
 
 /**
  * Input: data coming from outside (API/UI), not validated by domain yet.
@@ -25,7 +27,10 @@ export interface AddItemToCartOutput {
 }
 
 export class AddItemToCartUseCase {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    private readonly pricingService: PricingService
+  ) {}
 
   async execute(input: AddItemToCartInput): Promise<AddItemToCartOutput> {
     // Convert external primitive to domain value object (applies domain rules)
@@ -62,16 +67,14 @@ export class AddItemToCartUseCase {
     order.items.push(newItem);
 
     // Recalculate pricing
-    const subtotal = order.items.reduce(
-      (acc, item) => acc.add(item.basePrice.multiply(item.quantity)),
-      new Money(0)
-    );
+    const subtotal = this.pricingService.calculateSubtotal(order.items);
+    const total = this.pricingService.calculateTotal(subtotal);
 
     order.pricing = {
       subtotal,
       tax: new Money(0),
       serviceFee: new Money(0),
-      total: subtotal,
+      total,
     };
 
     order.updatedAt = new Date().toISOString();

@@ -1,9 +1,12 @@
 import { AddItemToCartUseCase } from '@/application/use-cases/add-item-to-cart.use-case';
 import { InMemoryOrderRepository } from '@/infrastructure/repositories/in-memory-order.repository';
+import { PricingService } from '@/domain/services/pricing.service';
 
 export const handler = async () => {
   const repository = new InMemoryOrderRepository();
-  const useCase = new AddItemToCartUseCase(repository);
+  const pricingService = new PricingService();
+  const useCase = new AddItemToCartUseCase(repository, pricingService);
+
 
   const result = await useCase.execute({
     orderId: 'order-1',
