@@ -3,11 +3,11 @@ import { Money } from '@/domain/value-objects/money.vo';
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 import { OrderRepository } from '@/domain/repositories/order.repository';
 import { randomUUID } from 'crypto';
+import { OrderPricingService } from '@/application/services/order-pricing.service';
 import {
   ModifierSelectionInput,
   ModifierSelectionService,
 } from '@/domain/services/modifier-selection.service';
-import { PricingService } from '@/domain/services/pricing.service';
 import { TimelineRepository } from '@/domain/repositories/timeline.repository';
 import { MenuRepository } from '@/domain/repositories/menu.repository';
 import { NotFoundError } from '@/domain/errors/not-found.error';
@@ -35,7 +35,7 @@ export interface AddItemToCartOutput {
 export class AddItemToCartUseCase {
   constructor(
     private readonly orderRepository: OrderRepository,
-    private readonly pricingService: PricingService,
+    private readonly orderPricingService: OrderPricingService,
     private readonly timelineRepository: TimelineRepository,
     private readonly menuRepository: MenuRepository,
     private readonly modifierSelectionService: ModifierSelectionService
@@ -119,20 +119,12 @@ export class AddItemToCartUseCase {
     }
 
     //  4. Recalculate pricing
-    const subtotal = this.pricingService.calculateSubtotal(order.items);
-    const total = this.pricingService.calculateTotal(subtotal);
-
-    const tax = this.pricingService.calculateTax(subtotal);
-    const serviceFee = this.pricingService.calculateServiceFee(subtotal);
-
-    order.pricing = {
-      subtotal,
-      tax,
-      serviceFee,
-      total,
-    };
-
-    order.updatedAt = new Date().toISOString();
+    const pricingEvent = this.orderPricingService.recalculate({
+      order,
+      orderId,
+      userId: input.userId,
+      correlationId,
+    });
 
     await this.orderRepository.save(order);
 
@@ -156,22 +148,6 @@ export class AddItemToCartUseCase {
     await this.timelineRepository.save(itemEvent);
 
     // 6. Pricing event
-    const pricingEvent: TimelineEvent = {
-      eventId: randomUUID(),
-      timestamp: new Date().toISOString(),
-      orderId: orderId,
-      userId: input.userId,
-      type: 'PRICING_CALCULATED',
-      source: 'api',
-      correlationId,
-      payload: {
-        subtotal: subtotal.value,
-        tax: 0,
-        serviceFee: 0,
-        total: total.value,
-      },
-    };
-
     await this.timelineRepository.save(pricingEvent);
 
     return {
