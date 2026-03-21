@@ -43,3 +43,9 @@ functions:
       - http:
           path: /orders/{orderId}
           method: get
+  placeOrder:
+    handler: src/interfaces/place-order.handler
+    events:
+      - http:
+          path: /orders
+          method: post
