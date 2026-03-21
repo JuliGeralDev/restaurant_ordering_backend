@@ -5,7 +5,7 @@ import { OrderRepository } from '@/domain/repositories/order.repository';
 import { randomUUID } from 'crypto';
 import { PricingService } from '@/domain/services/pricing.service';
 import { TimelineRepository } from '@/domain/repositories/timeline.repository';
-import { DynamoMenuRepository } from '@/infrastructure/repositories/dynamo-menu.repository';
+import { MenuRepository } from '@/domain/repositories/menu.repository';
 import { NotFoundError } from '@/domain/errors/not-found.error';
 import { ValidationError } from '@/domain/errors/validation.error';
 
@@ -38,7 +38,7 @@ export class UpdateItemInCartUseCase {
     private readonly orderRepository: OrderRepository,
     private readonly pricingService: PricingService,
     private readonly timelineRepository: TimelineRepository,
-    private readonly menuRepository: DynamoMenuRepository
+    private readonly menuRepository: MenuRepository
   ) { }
 
   async execute(input: UpdateItemInCartInput): Promise<UpdateItemInCartOutput> {

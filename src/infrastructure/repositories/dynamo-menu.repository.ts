@@ -1,30 +1,31 @@
-import { dynamoDB } from '@/infrastructure/database/dynamo.client';
-import { ScanCommand } from '@aws-sdk/lib-dynamodb';
-import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import * as dotenv from 'dotenv';
+import { GetCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+
+import { dynamoDB } from '@/infrastructure/database/dynamo.client';
+import { MenuProduct, MenuRepository } from '@/domain/repositories/menu.repository';
 
 // Load environment variables
 dotenv.config();
 
-export class DynamoMenuRepository {
-    async findAll() {
-        const result = await dynamoDB.send(
-            new ScanCommand({
-                TableName: process.env.TABLE_MENU,
-            })
-        );
+export class DynamoMenuRepository implements MenuRepository {
+  async findAll(): Promise<MenuProduct[]> {
+    const result = await dynamoDB.send(
+      new ScanCommand({
+        TableName: process.env.TABLE_MENU,
+      })
+    );
 
-        return result.Items || [];
-    }
+    return (result.Items as MenuProduct[]) || [];
+  }
 
-    async findById(productId: string) {
-        const result = await dynamoDB.send(
-            new GetCommand({
-                TableName: process.env.TABLE_MENU,
-                Key: { productId },
-            })
-        );
+  async findById(productId: string): Promise<MenuProduct | null> {
+    const result = await dynamoDB.send(
+      new GetCommand({
+        TableName: process.env.TABLE_MENU,
+        Key: { productId },
+      })
+    );
 
-        return result.Item || null;
-    }
+    return (result.Item as MenuProduct) || null;
+  }
 }
