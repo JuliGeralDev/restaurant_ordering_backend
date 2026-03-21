@@ -1,55 +1,15 @@
-import { orderRepository, timelineRepository, menuRepository } from '@/infrastructure/container';
-import { UpdateItemInCartUseCase } from '@/application/use-cases/update-item-in-cart.use-case';
-import { OrderPricingService } from '@/application/services/order-pricing.service';
-import { ModifierSelectionService } from '@/domain/services/modifier-selection.service';
-import { PricingService } from '@/domain/services/pricing.service';
+import { updateItemInCartUseCase } from '@/application/cart-use-cases';
 import { apiHandler } from './utils/api-handler';
 import { logSafe } from '@/infrastructure/logging/logger';
-import { validator } from './utils/field-validator';
+import { validateUpdateItemRequest } from './utils/cart-validators';
+import { LambdaEvent } from './types/lambda-event.type';
 
-const pricingService = new PricingService();
-const orderPricingService = new OrderPricingService(pricingService);
-const modifierSelectionService = new ModifierSelectionService();
-
-export const handler = (event: any) =>
+export const handler = (event: LambdaEvent) =>
   apiHandler(event, async (event, body) => {
     logSafe('Received update-item-in-cart request', event.body);
 
-    const {
-      orderId,
-      userId,
-      productId,
-      quantity,
-      modifiers = [],
-    } = body;
-
-    validator.required('orderId', orderId);
-    validator.required('userId', userId);
-    validator.required('productId', productId);
-    const quantityNum = validator.isPositiveInteger('quantity', quantity);
-
-    const transformedModifiers = modifiers.map((mod: any) => ({
-      groupId: mod.type || mod.groupId,
-      optionId: mod.value || mod.optionId,
-      name: mod.name || mod.value || mod.optionId,
-      price: mod.price || 0,
-    }));
-
-    const useCase = new UpdateItemInCartUseCase(
-      orderRepository,
-      orderPricingService,
-      timelineRepository,
-      menuRepository,
-      modifierSelectionService
-    );
-
-    const result = await useCase.execute({
-      orderId,
-      userId,
-      productId,
-      quantity: quantityNum,
-      modifiers: transformedModifiers,
-    });
+    const input = validateUpdateItemRequest(body);
+    const result = await updateItemInCartUseCase.execute(input);
 
     return result;
   });

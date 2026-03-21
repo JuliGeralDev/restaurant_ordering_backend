@@ -2,8 +2,9 @@ import { orderRepository } from '@/infrastructure/container';
 import { toOrderDTO } from './mappers/order.mapper';
 import { NotFoundError } from '@/domain/errors/not-found.error';
 import { apiHandler } from './utils/api-handler';
+import { LambdaEvent } from './types/lambda-event.type';
 
-export const handler = (event: any) =>
+export const handler = (event: LambdaEvent) =>
   apiHandler(
     event,
     async (event) => {

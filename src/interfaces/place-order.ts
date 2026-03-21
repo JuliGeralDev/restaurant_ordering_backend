@@ -4,8 +4,9 @@ import { apiHandler } from './utils/api-handler';
 import { validator } from './utils/field-validator';
 import { ValidationError } from '@/domain/errors/validation.error';
 import { IdempotencyConflictError } from '@/domain/errors/idempotency-conflict.error';
+import { LambdaEvent } from './types/lambda-event.type';
 
-export const handler = (event: any) =>
+export const handler = (event: LambdaEvent) =>
   apiHandler(
     event,
     async (event, body) => {

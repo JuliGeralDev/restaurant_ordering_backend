@@ -1,8 +1,9 @@
 import { timelineRepository } from '@/infrastructure/container';
 import { apiHandler } from './utils/api-handler';
 import { validator } from './utils/field-validator';
+import { LambdaEvent } from './types/lambda-event.type';
 
-export const handler = (event: any) =>
+export const handler = (event: LambdaEvent) =>
   apiHandler(
     event,
     async (event) => {

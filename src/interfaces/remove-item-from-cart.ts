@@ -1,32 +1,12 @@
-import { orderRepository, timelineRepository } from '@/infrastructure/container';
-import { OrderPricingService } from '@/application/services/order-pricing.service';
-import { PricingService } from '@/domain/services/pricing.service';
-import { RemoveItemFromCartUseCase } from '@/application/use-cases/remove-item-from-cart.use-case';
+import { removeItemFromCartUseCase } from '@/application/cart-use-cases';
 import { apiHandler } from './utils/api-handler';
-import { validator } from './utils/field-validator';
+import { validateRemoveItemRequest } from './utils/cart-validators';
+import { LambdaEvent } from './types/lambda-event.type';
 
-const pricingService = new PricingService();
-const orderPricingService = new OrderPricingService(pricingService);
-
-export const handler = (event: any) =>
+export const handler = (event: LambdaEvent) =>
   apiHandler(event, async ( body) => {
-    const { orderId, userId, productId } = body;
-
-    validator.required('orderId', orderId);
-    validator.required('userId', userId);
-    validator.required('productId', productId);
-
-    const useCase = new RemoveItemFromCartUseCase(
-      orderRepository,
-      timelineRepository,
-      orderPricingService
-    );
-
-    const result = await useCase.execute({
-      orderId,
-      userId,
-      productId,
-    });
+    const input = validateRemoveItemRequest(body);
+    const result = await removeItemFromCartUseCase.execute(input);
 
     return result.order;
   });
