@@ -35,6 +35,19 @@ export const handler = async (event: any) => {
     const existing = await idempotencyRepository.findByKey(key);
 
     if (existing) {
+      // SECURITY: Validate that orderId and userId match the original request
+      if (
+        existing.response.orderId !== orderId ||
+        existing.response.userId !== userId
+      ) {
+        return {
+          statusCode: 422,
+          body: JSON.stringify({
+            message: 'Idempotency key conflict: orderId or userId mismatch',
+          }),
+        };
+      }
+
       return {
         statusCode: 200,
         body: JSON.stringify(existing.response),
