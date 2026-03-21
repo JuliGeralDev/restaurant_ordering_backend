@@ -1,5 +1,6 @@
 import { ValidationError } from '@/domain/errors/validation.error';
 import { NotFoundError } from '@/domain/errors/not-found.error';
+import { IdempotencyConflictError } from '@/domain/errors/idempotency-conflict.error';
 
 export interface ErrorResponse {
   error: string;
@@ -7,7 +8,6 @@ export interface ErrorResponse {
 }
 
 export function handleError(error: any): { statusCode: number; body: string } {
-  // Check by instanceof and name for robustness
   if (error instanceof ValidationError || error.name === 'ValidationError') {
     return {
       statusCode: 400,
@@ -28,7 +28,26 @@ export function handleError(error: any): { statusCode: number; body: string } {
     };
   }
 
-  // Default to 500 for unexpected errors
+  if (error instanceof IdempotencyConflictError || error.name === 'IdempotencyConflictError') {
+    return {
+      statusCode: 422,
+      body: JSON.stringify({
+        error: 'Unprocessable entity',
+        message: error.message,
+      } as ErrorResponse),
+    };
+  }
+
+  if (error.name === 'ConditionalCheckFailedException') {
+    return {
+      statusCode: 409,
+      body: JSON.stringify({
+        error: 'Conflict',
+        message: 'Order has already been placed',
+      } as ErrorResponse),
+    };
+  }
+
   return {
     statusCode: 500,
     body: JSON.stringify({

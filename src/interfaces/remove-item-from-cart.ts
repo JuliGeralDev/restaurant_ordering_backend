@@ -1,22 +1,18 @@
 import { orderRepository, timelineRepository } from '@/infrastructure/container';
 import { PricingService } from '@/domain/services/pricing.service';
 import { RemoveItemFromCartUseCase } from '@/application/use-cases/remove-item-from-cart.use-case';
-import { validatePayloadSize } from './utils/payload-validator';
-import { ValidationError } from '@/domain/errors/validation.error';
-import { handleError } from './utils/error-response';
+import { apiHandler } from './utils/api-handler';
+import { validator } from './utils/field-validator';
 
 const pricingService = new PricingService();
 
-export const handler = async (event: any) => {
-  try {
-    validatePayloadSize(event.body);
-    const body = JSON.parse(event.body || '{}');
-
+export const handler = (event: any) =>
+  apiHandler(event, async (event, body) => {
     const { orderId, userId, productId } = body;
 
-    if (!orderId || !userId || !productId) {
-      throw new ValidationError('orderId, userId, and productId are required');
-    }
+    validator.required('orderId', orderId);
+    validator.required('userId', userId);
+    validator.required('productId', productId);
 
     const useCase = new RemoveItemFromCartUseCase(
       orderRepository,
@@ -30,11 +26,5 @@ export const handler = async (event: any) => {
       productId,
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.order),
-    };
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
+    return result.order;
+  });

@@ -1,20 +1,15 @@
-import { orderRepository, timelineRepository } from '@/infrastructure/container';
+import { orderRepository, timelineRepository, menuRepository } from '@/infrastructure/container';
 import { UpdateItemInCartUseCase } from '@/application/use-cases/update-item-in-cart.use-case';
 import { PricingService } from '@/domain/services/pricing.service';
-import { menuRepository } from '@/infrastructure/container';
-import { validatePayloadSize } from './utils/payload-validator';
+import { apiHandler } from './utils/api-handler';
 import { logSafe } from '@/infrastructure/logging/logger';
-import { ValidationError } from '@/domain/errors/validation.error';
-import { handleError } from './utils/error-response';
+import { validator } from './utils/field-validator';
 
 const pricingService = new PricingService();
 
-export const handler = async (event: any) => {
-  try {
-    validatePayloadSize(event.body);
+export const handler = (event: any) =>
+  apiHandler(event, async (event, body) => {
     logSafe('Received update-item-in-cart request', event.body);
-
-    const body = JSON.parse(event.body || '{}');
 
     const {
       orderId,
@@ -24,18 +19,11 @@ export const handler = async (event: any) => {
       modifiers = [],
     } = body;
 
-    // Validate basic inputs
-    if (!orderId || !userId || !productId) {
-      throw new ValidationError('orderId, userId, and productId are required');
-    }
+    validator.required('orderId', orderId);
+    validator.required('userId', userId);
+    validator.required('productId', productId);
+    const quantityNum = validator.isPositiveInteger('quantity', quantity);
 
-    // Convert quantity to number and validate
-    const quantityNum = Number(quantity);
-    if (!Number.isInteger(quantityNum) || quantityNum < 1) {
-      throw new ValidationError('quantity must be a positive integer');
-    }
-
-    // Transform modifiers from simple format {type, value} to full format {groupId, optionId, name, price}
     const transformedModifiers = modifiers.map((mod: any) => ({
       groupId: mod.type || mod.groupId,
       optionId: mod.value || mod.optionId,
@@ -58,11 +46,5 @@ export const handler = async (event: any) => {
       modifiers: transformedModifiers,
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result),
-    };
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
+    return result;
+  });

@@ -1,10 +1,12 @@
 import { menuRepository } from '@/infrastructure/container';
+import { apiHandler } from './utils/api-handler';
 
-export const handler = async () => {
-  const menu = await menuRepository.findAll();
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(menu),
-  };
-};
+export const handler = (event: any) =>
+  apiHandler(
+    event,
+    async () => {
+      const menu = await menuRepository.findAll();
+      return menu;
+    },
+    { requireBody: false }
+  );

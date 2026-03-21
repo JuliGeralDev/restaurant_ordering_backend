@@ -1,23 +1,21 @@
 import { orderRepository } from '@/infrastructure/container';
 import { toOrderDTO } from './mappers/order.mapper';
 import { NotFoundError } from '@/domain/errors/not-found.error';
-import { handleError } from './utils/error-response';
+import { apiHandler } from './utils/api-handler';
 
-export const handler = async (event: any) => {
-  try {
-    const { orderId } = event.pathParameters;
+export const handler = (event: any) =>
+  apiHandler(
+    event,
+    async (event) => {
+      const { orderId } = event.pathParameters;
 
-    const order = await orderRepository.findById(orderId);
+      const order = await orderRepository.findById(orderId);
 
-    if (!order) {
-      throw new NotFoundError('Order not found');
-    }
+      if (!order) {
+        throw new NotFoundError('Order not found');
+      }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(toOrderDTO(order)),
-    };
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
+      return toOrderDTO(order);
+    },
+    { requireBody: false }
+  );

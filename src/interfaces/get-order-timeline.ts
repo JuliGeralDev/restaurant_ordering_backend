@@ -1,29 +1,24 @@
 import { timelineRepository } from '@/infrastructure/container';
-import { ValidationError } from '@/domain/errors/validation.error';
-import { handleError } from './utils/error-response';
+import { apiHandler } from './utils/api-handler';
+import { validator } from './utils/field-validator';
 
-export const handler = async (event: any) => {
-  try {
-    const { orderId } = event.pathParameters;
-    const { pageSize = '10', nextToken } = event.queryStringParameters || {};
+export const handler = (event: any) =>
+  apiHandler(
+    event,
+    async (event) => {
+      const { orderId } = event.pathParameters;
+      const { pageSize = '10', nextToken } = event.queryStringParameters || {};
 
-    // Validate pageSize
-    const pageSizeNum = Number(pageSize);
-    if (!Number.isInteger(pageSizeNum) || pageSizeNum < 1 || pageSizeNum > 50) {
-      throw new ValidationError('pageSize must be a positive integer between 1 and 50');
-    }
+      const pageSizeNum = validator.isPositiveInteger('pageSize', pageSize);
+      validator.inRange('pageSize', pageSizeNum, 1, 50);
 
-    const result = await timelineRepository.findByOrderId(
-      orderId,
-      pageSizeNum,
-      nextToken
-    );
+      const result = await timelineRepository.findByOrderId(
+        orderId,
+        pageSizeNum,
+        nextToken
+      );
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result),
-    };
-  } catch (error: any) {
-    return handleError(error);
-  }
-};
+      return result;
+    },
+    { requireBody: false }
+  );
