@@ -1,5 +1,6 @@
-import { orderRepository, timelineRepository } from '@/infrastructure/container';
+import { orderRepository, timelineRepository, idempotencyRepository } from '@/infrastructure/container';
 import { PlaceOrderUseCase } from '@/application/use-cases/place-order.use-case';
+import { randomUUID } from 'crypto';
 
 export const handler = async (event: any) => {
   try {
@@ -16,10 +17,28 @@ export const handler = async (event: any) => {
       };
     }
 
-    const correlationId =
+    const key =
       event.headers?.['Idempotency-Key'] ||
-      event.headers?.['idempotency-key'] ||
-      crypto.randomUUID();
+      event.headers?.['idempotency-key'];
+
+    if (!key) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: 'Idempotency-Key header is required',
+        }),
+      };
+    }
+
+    // Check existing
+    const existing = await idempotencyRepository.findByKey(key);
+
+    if (existing) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(existing.response),
+      };
+    }
 
     const useCase = new PlaceOrderUseCase(
       orderRepository,
@@ -29,7 +48,14 @@ export const handler = async (event: any) => {
     const result = await useCase.execute({
       orderId,
       userId,
-      correlationId,
+      correlationId: key,
+    });
+
+    // Save idempotency record
+    await idempotencyRepository.save({
+      key,
+      response: result,
+      createdAt: new Date().toISOString(),
     });
 
     return {

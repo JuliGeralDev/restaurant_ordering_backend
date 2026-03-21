@@ -50,6 +50,16 @@ const TABLES = {
       { AttributeName: 'productId', KeyType: 'HASH' }
     ],
     BillingMode: 'PAY_PER_REQUEST'
+  },
+  idempotency: {
+    TableName: 'idempotency',
+    AttributeDefinitions: [
+      { AttributeName: 'key', AttributeType: 'S' }
+    ],
+    KeySchema: [
+      { AttributeName: 'key', KeyType: 'HASH' }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
   }
 };
 
@@ -382,6 +392,7 @@ async function main() {
     await createTable(TABLES.orders);
     await createTable(TABLES.timeline);
     await createTable(TABLES.products);
+    await createTable(TABLES.idempotency);
     
     // Seed data
     await seedProducts();
