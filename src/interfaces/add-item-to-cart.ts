@@ -3,12 +3,14 @@ import { AddItemToCartUseCase } from '@/application/use-cases/add-item-to-cart.u
 import { PricingService } from '@/domain/services/pricing.service';
 import { menuRepository } from '@/infrastructure/container';
 import { validatePayloadSize } from './utils/payload-validator';
+import { logSafe } from '@/infrastructure/logging/logger';
 
 const pricingService = new PricingService();
 
 export const handler = async (event: any) => {
   try {
     validatePayloadSize(event.body);
+    logSafe('Received add-item-to-cart request', event.body);
 
     const body = JSON.parse(event.body || '{}');
 
