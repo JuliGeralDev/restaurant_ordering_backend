@@ -5,10 +5,13 @@ import {
   DescribeTableCommand 
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import * as dotenv from 'dotenv';
 
+// Load environment variables
+dotenv.config();
 const client = new DynamoDBClient({
-  region: 'us-east-1',
-  endpoint: 'http://localhost:8000',
+  region: process.env.AWS_REGION,
+  endpoint: process.env.DYNAMODB_ENDPOINT,
 });
 
 const dynamoDB = DynamoDBDocumentClient.from(client, {
@@ -68,69 +71,86 @@ const SAMPLE_MENU = [
   {
     productId: '1',
     name: 'Classic Burger',
-    basePrice: 15000,
+    description:
+      'Juicy grilled beef burger served with fresh lettuce, tomato, onion and our classic house sauce on a toasted brioche bun.',
+    basePrice: 18000,
+    imageUrl: '', // image url here
   },
   {
     productId: '2',
-    name: 'Cheese Burger',
-    basePrice: 17000,
+    name: 'Double Cheese Burger',
+    description:
+      'Two grilled beef patties stacked with melted cheddar cheese, pickles, onions and house burger sauce on a toasted bun.',
+    basePrice: 21000,
+    imageUrl: '', // image url here
   },
   {
     productId: '3',
-    name: 'Chicken Burger',
-    basePrice: 16000,
+    name: 'Pepperoni Pizza',
+    description:
+      'Classic Italian pizza with tomato sauce, melted mozzarella cheese and crispy pepperoni slices on a stone-baked crust.',
+    basePrice: 24000,
+    imageUrl: '', // image url here
   },
   {
     productId: '4',
-    name: 'Veggie Burger',
-    basePrice: 14000,
+    name: 'Four Cheese Pizza',
+    description:
+      'Creamy pizza made with mozzarella, cheddar, parmesan and blue cheese on a golden baked crust with tomato sauce.',
+    basePrice: 25000,
+    imageUrl: '', // image url here
   },
   {
     productId: '5',
-    name: 'Double Burger',
-    basePrice: 20000,
+    name: 'Italian Lasagna',
+    description:
+      'Traditional baked lasagna layered with pasta sheets, seasoned beef, tomato sauce and creamy béchamel topped with melted cheese.',
+    basePrice: 23000,
+    imageUrl: '', // image url here
   },
   {
     productId: '6',
-    name: 'Hot Dog',
-    basePrice: 12000,
+    name: 'Coca-Cola',
+    description:
+      'Refreshing chilled Coca-Cola served cold. Perfect to pair with burgers, pizza or tacos.',
+    basePrice: 6000,
+    imageUrl: '', // image url here
   },
   {
     productId: '7',
-    name: 'Fries',
-    basePrice: 8000,
+    name: 'Pepsi',
+    description:
+      'Classic Pepsi soda served ice cold, a refreshing drink to accompany any meal.',
+    basePrice: 6000,
+    imageUrl: '', // image url here
   },
+
+  // PRODUCTO CON MODIFIERS
   {
     productId: '8',
-    name: 'Onion Rings',
-    basePrice: 9000,
-  },
-  {
-    productId: '9',
-    name: 'Soda',
-    basePrice: 5000,
-  },
-  {
-    productId: '10',
     name: 'Custom Burger',
-    basePrice: 18000,
+    description:
+      'Build your own burger by choosing your preferred protein, toppings and sauces.',
+    basePrice: 19000,
+    imageUrl: '',
     modifiers: {
       protein: {
         required: true,
         options: {
-          beef: { name: 'Beef', price: 0 },
-          chicken: { name: 'Chicken', price: 0 },
-          veggie: { name: 'Veggie', price: 0 },
+          beef: { name: 'Beef Patty', price: 0 },
+          chicken: { name: 'Grilled Chicken', price: 0 },
+          veggie: { name: 'Veggie Patty', price: 0 },
         },
       },
       toppings: {
         required: false,
-        max: 3,
+        max: 4,
         options: {
           lettuce: { name: 'Lettuce', price: 0 },
           tomato: { name: 'Tomato', price: 0 },
           onion: { name: 'Onion', price: 0 },
-          cheese: { name: 'Cheese', price: 500 },
+          cheese: { name: 'Cheddar Cheese', price: 500 },
+          bacon: { name: 'Crispy Bacon', price: 900 },
         },
       },
       sauces: {
@@ -138,46 +158,85 @@ const SAMPLE_MENU = [
         max: 2,
         options: {
           ketchup: { name: 'Ketchup', price: 0 },
-          mayo: { name: 'Mayo', price: 300 },
-          bbq: { name: 'BBQ', price: 300 },
+          mayo: { name: 'Mayonnaise', price: 300 },
+          bbq: { name: 'BBQ Sauce', price: 400 },
         },
       },
     },
   },
+
+  // PRODUCTO CON MODIFIERS
   {
-    productId: '11',
-    name: 'Custom Pizza',
-    basePrice: 22000,
+    productId: '9',
+    name: 'Custom Hot Dog',
+    description:
+      'Grilled hot dog in a toasted bun that you can customize with toppings and sauces.',
+    basePrice: 15000,
+    imageUrl: '',
     modifiers: {
       protein: {
         required: true,
         options: {
-          pepperoni: { name: 'Pepperoni', price: 0 },
-          sausage: { name: 'Sausage', price: 0 },
-          chicken: { name: 'Chicken', price: 0 },
-          veggie: { name: 'Veggie', price: 0 },
+          classic: { name: 'Classic Sausage', price: 0 },
+          beef: { name: 'Beef Sausage', price: 1000 },
         },
       },
       toppings: {
         required: false,
-        max: 5,
+        max: 3,
         options: {
-          mushrooms: { name: 'Mushrooms', price: 400 },
-          olives: { name: 'Olives', price: 400 },
-          peppers: { name: 'Peppers', price: 300 },
-          onions: { name: 'Onions', price: 0 },
-          pineapple: { name: 'Pineapple', price: 500 },
-          'extra-cheese': { name: 'Extra Cheese', price: 600 },
+          cheese: { name: 'Cheese', price: 500 },
+          bacon: { name: 'Bacon', price: 800 },
+          onion: { name: 'Onion', price: 300 },
+          jalapeno: { name: 'Jalapeño', price: 400 },
         },
       },
       sauces: {
         required: false,
         max: 2,
         options: {
-          marinara: { name: 'Marinara', price: 0 },
-          alfredo: { name: 'Alfredo', price: 500 },
-          bbq: { name: 'BBQ', price: 400 },
-          pesto: { name: 'Pesto', price: 600 },
+          ketchup: { name: 'Ketchup', price: 0 },
+          mayo: { name: 'Mayonnaise', price: 300 },
+          mustard: { name: 'Mustard', price: 200 },
+        },
+      },
+    },
+  },
+
+  // PRODUCTO CON MODIFIERS
+  {
+    productId: '10',
+    name: 'Custom Tacos',
+    description:
+      'Three soft tacos that you can customize with your favorite protein, toppings and sauces.',
+    basePrice: 20000,
+    imageUrl: '',
+    modifiers: {
+      protein: {
+        required: true,
+        options: {
+          beef: { name: 'Beef', price: 0 },
+          chicken: { name: 'Chicken', price: 0 },
+          pork: { name: 'Pork', price: 0 },
+        },
+      },
+      toppings: {
+        required: false,
+        max: 4,
+        options: {
+          guacamole: { name: 'Guacamole', price: 1200 },
+          cheese: { name: 'Cheese', price: 500 },
+          lettuce: { name: 'Lettuce', price: 0 },
+          pico: { name: 'Pico de Gallo', price: 600 },
+        },
+      },
+      sauces: {
+        required: false,
+        max: 2,
+        options: {
+          salsa_roja: { name: 'Red Salsa', price: 0 },
+          salsa_verde: { name: 'Green Salsa', price: 0 },
+          chipotle: { name: 'Chipotle Sauce', price: 500 },
         },
       },
     },
@@ -286,14 +345,16 @@ async function main() {
     
     console.log('\n✅ Database initialization completed successfully!');
     console.log('\nMenu items created:');
-    console.log('  • ID 1-5: Burgers (5 items)');
-    console.log('  • ID 6: Hot Dog');
-    console.log('  • ID 7-8: Sides (2 items)');
-    console.log('  • ID 9: Drink');
-    console.log('  • ID 10: Custom Burger (with modifiers)');
-    console.log('  • ID 11: Custom Pizza (with modifiers)');
-    console.log('\nTotal: 11 menu items');
-    console.log('Products with modifiers: 2 (Custom Burger, Custom Pizza)');
+    console.log('  • ID 1-2: Burgers (2 items)');
+    console.log('  • ID 3-4: Pizzas (2 items)');
+    console.log('  • ID 5: Lasagna');
+    console.log('  • ID 6-7: Drinks (2 items)');
+    console.log('  • ID 8: Custom Burger (with modifiers)');
+    console.log('  • ID 9: Custom Hot Dog (with modifiers)');
+    console.log('  • ID 10: Custom Tacos (with modifiers)');
+    console.log('\nTotal: 10 menu items');
+    console.log('Products with modifiers: 3 (Custom Burger, Custom Hot Dog, Custom Tacos)');
+    console.log('All products include: name, description, basePrice, imageUrl');
     
   } catch (error) {
     console.error('\n❌ Error initializing database:', error);
