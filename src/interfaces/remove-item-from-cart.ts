@@ -7,7 +7,7 @@ import { validator } from './utils/field-validator';
 const pricingService = new PricingService();
 
 export const handler = (event: any) =>
-  apiHandler(event, async (event, body) => {
+  apiHandler(event, async ( body) => {
     const { orderId, userId, productId } = body;
 
     validator.required('orderId', orderId);

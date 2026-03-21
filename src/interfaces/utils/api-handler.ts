@@ -9,6 +9,17 @@ interface ApiHandlerOptions {
 
 type HandlerFunction = (event: any, parsedBody?: any) => Promise<any>;
 
+/**
+ * Centralized wrapper for Lambda handlers that provides request parsing,
+ * validation, response building, and error handling.
+ * 
+ * @example
+ * export const handler = (event: any) =>
+ *   apiHandler(event, async (event, body) => {
+ *     validator.required('userId', body.userId);
+ *     return await processOrder(body);
+ *   });
+ */
 export async function apiHandler(
   event: any,
   handler: HandlerFunction,
