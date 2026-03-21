@@ -1,4 +1,4 @@
-import { TimelineRepository } from '@/domain/repositories/timeline.repository';
+import { TimelineRepository, PaginatedTimelineResult } from '@/domain/repositories/timeline.repository';
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 import { dynamoDB } from '@/infrastructure/database/dynamo.client';
 import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
@@ -16,9 +16,13 @@ export class DynamoTimelineRepository implements TimelineRepository {
 
   async findByOrderId(
     orderId: string,
-    page: number,
-    pageSize: number
-  ): Promise<TimelineEvent[]> {
+    pageSize: number,
+    nextToken?: string
+  ): Promise<PaginatedTimelineResult> {
+    const exclusiveStartKey = nextToken
+      ? JSON.parse(Buffer.from(nextToken, 'base64').toString('utf-8'))
+      : undefined;
+
     const result = await dynamoDB.send(
       new QueryCommand({
         TableName: 'order_timeline',
@@ -27,10 +31,21 @@ export class DynamoTimelineRepository implements TimelineRepository {
           ':orderId': orderId,
         },
         Limit: pageSize,
-        ScanIndexForward: false,
+        ExclusiveStartKey: exclusiveStartKey,
+        ScanIndexForward: false, // DESC order by timestamp
       })
     );
 
-    return (result.Items as TimelineEvent[]) || [];
+    const events = (result.Items as TimelineEvent[]) || [];
+    const hasMore = !!result.LastEvaluatedKey;
+    const newNextToken = result.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64')
+      : undefined;
+
+    return {
+      events,
+      nextToken: newNextToken,
+      hasMore,
+    };
   }
 }

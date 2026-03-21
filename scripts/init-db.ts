@@ -131,6 +131,27 @@ const SAMPLE_MENU = [
       },
     },
   },
+  {
+    productId: '11',
+    name: 'Custom Pizza',
+    basePrice: 22000,
+    modifiers: {
+      protein: {
+        required: true,
+        options: ['pepperoni', 'sausage', 'chicken', 'veggie'],
+      },
+      toppings: {
+        required: false,
+        max: 5,
+        options: ['mushrooms', 'olives', 'peppers', 'onions', 'pineapple', 'extra-cheese'],
+      },
+      sauces: {
+        required: false,
+        max: 2,
+        options: ['marinara', 'alfredo', 'bbq', 'pesto'],
+      },
+    },
+  },
 ];
 
 async function tableExists(tableName: string): Promise<boolean> {
@@ -240,7 +261,9 @@ async function main() {
     console.log('  • ID 7-8: Sides (2 items)');
     console.log('  • ID 9: Drink');
     console.log('  • ID 10: Custom Burger (with modifiers)');
-    console.log('\nTotal: 10 menu items');
+    console.log('  • ID 11: Custom Pizza (with modifiers)');
+    console.log('\nTotal: 11 menu items');
+    console.log('Products with modifiers: 2 (Custom Burger, Custom Pizza)');
     
   } catch (error) {
     console.error('\n❌ Error initializing database:', error);

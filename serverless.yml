@@ -61,6 +61,12 @@ functions:
       - http:
           path: /cart/items
           method: post
+  updateItemInCart:
+    handler: src/interfaces/update-item-in-cart.handler
+    events:
+      - http:
+          path: /cart/items
+          method: put
   removeItemFromCart:
     handler: src/interfaces/remove-item-from-cart.handler
     events:

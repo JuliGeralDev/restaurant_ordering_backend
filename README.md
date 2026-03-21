@@ -166,7 +166,7 @@ curl "http://localhost:3000/orders/order-1/timeline?page=1&pageSize=10"
 
 ## Sample Data
 
-After `npm run init:db`, you get 10 menu items:
+After `npm run init:db`, you get 11 menu items:
 
 - **ID 1**: Classic Burger ($15,000)
 - **ID 2**: Cheese Burger ($17,000)
@@ -178,6 +178,7 @@ After `npm run init:db`, you get 10 menu items:
 - **ID 8**: Onion Rings ($9,000)
 - **ID 9**: Soda ($5,000)
 - **ID 10**: Custom Burger ($18,000) - **with modifiers** (protein, toppings, sauces)
+- **ID 11**: Custom Pizza ($22,000) - **with modifiers** (protein, toppings, sauces)
 
 ## Architecture
 

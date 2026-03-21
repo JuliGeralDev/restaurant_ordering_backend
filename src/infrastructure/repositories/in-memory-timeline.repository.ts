@@ -1,4 +1,4 @@
-import { TimelineRepository } from '@/domain/repositories/timeline.repository';
+import { TimelineRepository, PaginatedTimelineResult } from '@/domain/repositories/timeline.repository';
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 
 export class InMemoryTimelineRepository implements TimelineRepository {
@@ -20,9 +20,9 @@ export class InMemoryTimelineRepository implements TimelineRepository {
 
   async findByOrderId(
     orderId: string,
-    page: number,
-    pageSize: number
-  ): Promise<TimelineEvent[]> {
+    pageSize: number,
+    nextToken?: string
+  ): Promise<PaginatedTimelineResult> {
     const events = this.events.get(orderId) || [];
 
     // Sort by timestamp (requirement)
@@ -30,9 +30,29 @@ export class InMemoryTimelineRepository implements TimelineRepository {
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
+    // For in-memory, nextToken is the index position encoded in base64
+    let startIndex = 0;
+    if (nextToken) {
+      try {
+        startIndex = parseInt(Buffer.from(nextToken, 'base64').toString('utf-8'), 10);
+      } catch (error) {
+        throw new Error('Invalid pagination token');
+      }
+    }
 
-    return sorted.slice(start, end);
+    const endIndex = startIndex + pageSize;
+    const paginatedEvents = sorted.slice(startIndex, endIndex);
+    const hasMore = endIndex < sorted.length;
+
+    let newNextToken: string | undefined;
+    if (hasMore) {
+      newNextToken = Buffer.from(endIndex.toString()).toString('base64');
+    }
+
+    return {
+      events: paginatedEvents,
+      nextToken: newNextToken,
+      hasMore
+    };
   }
 }

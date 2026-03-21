@@ -1,11 +1,17 @@
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 
+export interface PaginatedTimelineResult {
+  events: TimelineEvent[];
+  nextToken?: string;
+  hasMore: boolean;
+}
+
 export interface TimelineRepository {
   save(event: TimelineEvent): Promise<void>;
 
   findByOrderId(
     orderId: string,
-    page: number,
-    pageSize: number
-  ): Promise<TimelineEvent[]>;
+    pageSize: number,
+    nextToken?: string
+  ): Promise<PaginatedTimelineResult>;
 }
