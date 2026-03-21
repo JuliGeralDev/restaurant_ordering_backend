@@ -3,6 +3,7 @@ import { TimelineRepository } from '@/domain/repositories/timeline.repository';
 import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
 import { PricingService } from '@/domain/services/pricing.service';
 import { Money } from '@/domain/value-objects/money.vo';
+import { Order } from '@/domain/entities/order.entity';
 import { randomUUID } from 'crypto';
 
 export interface RemoveItemInput {
@@ -12,7 +13,7 @@ export interface RemoveItemInput {
 }
 
 export interface RemoveItemOutput {
-  orderId: string;
+  order: Order;
 }
 
 export class RemoveItemFromCartUseCase {
@@ -98,7 +99,7 @@ export class RemoveItemFromCartUseCase {
     await this.timelineRepository.save(pricingEvent);
 
     return {
-      orderId: order.orderId,
+      order,
     };
   }
 }
