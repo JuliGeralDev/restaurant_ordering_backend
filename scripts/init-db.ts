@@ -74,7 +74,7 @@ const SAMPLE_MENU = [
     description:
       'Juicy grilled beef burger served with fresh lettuce, tomato, onion and our classic house sauce on a toasted brioche bun.',
     basePrice: 18000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135398/custom_burguer_xpp1ux.jpg', 
   },
   {
     productId: '2',
@@ -82,7 +82,7 @@ const SAMPLE_MENU = [
     description:
       'Two grilled beef patties stacked with melted cheddar cheese, pickles, onions and house burger sauce on a toasted bun.',
     basePrice: 21000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135727/chesee_burger_fq95lb.jpg', 
   },
   {
     productId: '3',
@@ -90,7 +90,7 @@ const SAMPLE_MENU = [
     description:
       'Classic Italian pizza with tomato sauce, melted mozzarella cheese and crispy pepperoni slices on a stone-baked crust.',
     basePrice: 24000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135786/pizza1_es8hkr.jpg', 
   },
   {
     productId: '4',
@@ -98,7 +98,7 @@ const SAMPLE_MENU = [
     description:
       'Creamy pizza made with mozzarella, cheddar, parmesan and blue cheese on a golden baked crust with tomato sauce.',
     basePrice: 25000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135786/pizza1_es8hkr.jpg', 
   },
   {
     productId: '5',
@@ -106,7 +106,7 @@ const SAMPLE_MENU = [
     description:
       'Traditional baked lasagna layered with pasta sheets, seasoned beef, tomato sauce and creamy béchamel topped with melted cheese.',
     basePrice: 23000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135855/lasagna_dmrhmq.jpg', 
   },
   {
     productId: '6',
@@ -114,7 +114,7 @@ const SAMPLE_MENU = [
     description:
       'Refreshing chilled Coca-Cola served cold. Perfect to pair with burgers, pizza or tacos.',
     basePrice: 6000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135913/coca-cola_qtfglb.jpg', 
   },
   {
     productId: '7',
@@ -122,7 +122,7 @@ const SAMPLE_MENU = [
     description:
       'Classic Pepsi soda served ice cold, a refreshing drink to accompany any meal.',
     basePrice: 6000,
-    imageUrl: '', // image url here
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135912/sverre-2peR6-qWyeo-unsplash_kiwucs.jpg', 
   },
 
   // PRODUCTO CON MODIFIERS
@@ -132,7 +132,7 @@ const SAMPLE_MENU = [
     description:
       'Build your own burger by choosing your preferred protein, toppings and sauces.',
     basePrice: 19000,
-    imageUrl: '',
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135634/custom_burger_xh97tj.jpg',
     modifiers: {
       protein: {
         required: true,
@@ -172,7 +172,7 @@ const SAMPLE_MENU = [
     description:
       'Grilled hot dog in a toasted bun that you can customize with toppings and sauces.',
     basePrice: 15000,
-    imageUrl: '',
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135970/hot-dog_yoavkv.jpg',
     modifiers: {
       protein: {
         required: true,
@@ -210,7 +210,7 @@ const SAMPLE_MENU = [
     description:
       'Three soft tacos that you can customize with your favorite protein, toppings and sauces.',
     basePrice: 20000,
-    imageUrl: '',
+    imageUrl: 'https://res.cloudinary.com/dualohbya/image/upload/v1774135992/tacos_ppevtl.jpg',
     modifiers: {
       protein: {
         required: true,

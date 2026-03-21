@@ -12,7 +12,9 @@ export interface MenuModifierGroup {
 export interface MenuProduct {
   productId: string;
   name: string;
+  description?: string;
   basePrice: number;
+  imageUrl?: string;
   modifiers?: Record<string, MenuModifierGroup>;
 }
 
