@@ -92,8 +92,9 @@ You should see:
 ✓ Connected to DynamoDB Local
 ✓ Table orders created successfully
 ✓ Table order_timeline created successfully
-✓ Table products created successfully
-✓ Added product: Classic Burger
+✓ Table menu created successfully
+✓ Table idempotency created successfully
+✓ Added menu item: Classic Burger
 ...
 ✅ Database initialization completed successfully!
 ```
@@ -165,16 +166,18 @@ curl "http://localhost:3000/orders/order-1/timeline?page=1&pageSize=10"
 
 ## Sample Data
 
-After `npm run init:db`, you get 10 products:
+After `npm run init:db`, you get 10 menu items:
 
-- **Burgers** (2): Classic, BBQ
-- **Pizzas** (2): Margherita, Pepperoni
-- **Pastas** (1): Carbonara
-- **Salads** (1): Caesar
-- **Drinks** (2): Soda, Juice
-- **Desserts** (2): Brownie, Cheesecake
-
-Each with modifiers (sizes, extras, etc.)
+- **ID 1**: Classic Burger ($15,000)
+- **ID 2**: Cheese Burger ($17,000)
+- **ID 3**: Chicken Burger ($16,000)
+- **ID 4**: Veggie Burger ($14,000)
+- **ID 5**: Double Burger ($20,000)
+- **ID 6**: Hot Dog ($12,000)
+- **ID 7**: Fries ($8,000)
+- **ID 8**: Onion Rings ($9,000)
+- **ID 9**: Soda ($5,000)
+- **ID 10**: Custom Burger ($18,000) - **with modifiers** (protein, toppings, sauces)
 
 ## Architecture
 
@@ -239,7 +242,8 @@ npm run dev
 
 - **orders**: Order data (PK: `orderId`)
 - **order_timeline**: Events (PK: `orderId`, SK: `timestamp`)
-- **products**: Menu items (PK: `productId`)
+- **menu**: Menu items (PK: `productId`)
+- **idempotency**: Idempotency keys (PK: `key`)
 
 ## Event Types
 

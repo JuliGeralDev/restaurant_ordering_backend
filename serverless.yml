@@ -49,3 +49,9 @@ functions:
       - http:
           path: /orders
           method: post
+  getMenu:
+    handler: src/interfaces/get-menu.handler
+    events:
+      - http:
+          path: /menu
+          method: get

@@ -41,8 +41,8 @@ const TABLES = {
     ],
     BillingMode: 'PAY_PER_REQUEST'
   },
-  products: {
-    TableName: 'products',
+  menu: {
+    TableName: 'menu',
     AttributeDefinitions: [
       { AttributeName: 'productId', AttributeType: 'S' }
     ],
@@ -64,237 +64,73 @@ const TABLES = {
 };
 
 // Sample menu data
-const SAMPLE_PRODUCTS = [
+const SAMPLE_MENU = [
   {
-    productId: 'burger-classic',
+    productId: '1',
     name: 'Classic Burger',
-    description: 'Hamburguesa clásica con lechuga, tomate, cebolla y queso',
-    category: 'burgers',
-    basePrice: 12000,
-    available: true,
-    imageUrl: 'https://example.com/burger-classic.jpg',
-    modifierGroups: [
-      {
-        groupId: 'extras',
-        name: 'Extras',
-        required: false,
-        multiSelect: true,
-        options: [
-          { optionId: 'extra-cheese', name: 'Queso extra', price: 2000 },
-          { optionId: 'bacon', name: 'Tocineta', price: 3000 },
-          { optionId: 'avocado', name: 'Aguacate', price: 3500 }
-        ]
-      },
-      {
-        groupId: 'cooking-point',
-        name: 'Punto de cocción',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'rare', name: 'Poco cocida', price: 0 },
-          { optionId: 'medium', name: 'Término medio', price: 0 },
-          { optionId: 'well-done', name: 'Bien cocida', price: 0 }
-        ]
-      }
-    ]
+    basePrice: 15000,
   },
   {
-    productId: 'burger-bbq',
-    name: 'BBQ Burger',
-    description: 'Hamburguesa con salsa BBQ, cebolla caramelizada y queso cheddar',
-    category: 'burgers',
-    basePrice: 14000,
-    available: true,
-    imageUrl: 'https://example.com/burger-bbq.jpg',
-    modifierGroups: [
-      {
-        groupId: 'extras',
-        name: 'Extras',
-        required: false,
-        multiSelect: true,
-        options: [
-          { optionId: 'extra-cheese', name: 'Queso extra', price: 2000 },
-          { optionId: 'bacon', name: 'Tocineta', price: 3000 },
-          { optionId: 'onion-rings', name: 'Aros de cebolla', price: 2500 }
-        ]
-      }
-    ]
+    productId: '2',
+    name: 'Cheese Burger',
+    basePrice: 17000,
   },
   {
-    productId: 'pizza-margherita',
-    name: 'Pizza Margherita',
-    description: 'Pizza clásica con tomate, mozzarella y albahaca fresca',
-    category: 'pizzas',
-    basePrice: 18000,
-    available: true,
-    imageUrl: 'https://example.com/pizza-margherita.jpg',
-    modifierGroups: [
-      {
-        groupId: 'size',
-        name: 'Tamaño',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'small', name: 'Personal (8")', price: 0 },
-          { optionId: 'medium', name: 'Mediana (12")', price: 4000 },
-          { optionId: 'large', name: 'Grande (16")', price: 8000 }
-        ]
-      },
-      {
-        groupId: 'extra-toppings',
-        name: 'Ingredientes adicionales',
-        required: false,
-        multiSelect: true,
-        options: [
-          { optionId: 'pepperoni', name: 'Pepperoni', price: 3000 },
-          { optionId: 'mushrooms', name: 'Champiñones', price: 2500 },
-          { optionId: 'olives', name: 'Aceitunas', price: 2000 }
-        ]
-      }
-    ]
-  },
-  {
-    productId: 'pizza-pepperoni',
-    name: 'Pizza Pepperoni',
-    description: 'Pizza con abundante pepperoni y mozzarella',
-    category: 'pizzas',
-    basePrice: 20000,
-    available: true,
-    imageUrl: 'https://example.com/pizza-pepperoni.jpg',
-    modifierGroups: [
-      {
-        groupId: 'size',
-        name: 'Tamaño',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'small', name: 'Personal (8")', price: 0 },
-          { optionId: 'medium', name: 'Mediana (12")', price: 4000 },
-          { optionId: 'large', name: 'Grande (16")', price: 8000 }
-        ]
-      }
-    ]
-  },
-  {
-    productId: 'pasta-carbonara',
-    name: 'Pasta Carbonara',
-    description: 'Pasta con salsa carbonara cremosa, tocineta y queso parmesano',
-    category: 'pastas',
+    productId: '3',
+    name: 'Chicken Burger',
     basePrice: 16000,
-    available: true,
-    imageUrl: 'https://example.com/pasta-carbonara.jpg',
-    modifierGroups: [
-      {
-        groupId: 'pasta-type',
-        name: 'Tipo de pasta',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'spaghetti', name: 'Spaghetti', price: 0 },
-          { optionId: 'penne', name: 'Penne', price: 0 },
-          { optionId: 'fettuccine', name: 'Fettuccine', price: 0 }
-        ]
-      }
-    ]
   },
   {
-    productId: 'salad-caesar',
-    name: 'Ensalada César',
-    description: 'Lechuga romana, crutones, queso parmesano y aderezo césar',
-    category: 'salads',
-    basePrice: 11000,
-    available: true,
-    imageUrl: 'https://example.com/salad-caesar.jpg',
-    modifierGroups: [
-      {
-        groupId: 'protein',
-        name: 'Proteína',
-        required: false,
-        multiSelect: false,
-        options: [
-          { optionId: 'chicken', name: 'Pollo a la parrilla', price: 4000 },
-          { optionId: 'shrimp', name: 'Camarones', price: 6000 },
-          { optionId: 'salmon', name: 'Salmón', price: 7000 }
-        ]
-      }
-    ]
+    productId: '4',
+    name: 'Veggie Burger',
+    basePrice: 14000,
   },
   {
-    productId: 'drink-soda',
-    name: 'Gaseosa',
-    description: 'Gaseosa de 350ml',
-    category: 'drinks',
-    basePrice: 3500,
-    available: true,
-    imageUrl: 'https://example.com/drink-soda.jpg',
-    modifierGroups: [
-      {
-        groupId: 'flavor',
-        name: 'Sabor',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'cola', name: 'Cola', price: 0 },
-          { optionId: 'lemon', name: 'Limonada', price: 0 },
-          { optionId: 'orange', name: 'Naranja', price: 0 }
-        ]
-      }
-    ]
+    productId: '5',
+    name: 'Double Burger',
+    basePrice: 20000,
   },
   {
-    productId: 'drink-juice',
-    name: 'Jugo Natural',
-    description: 'Jugo natural de frutas frescas',
-    category: 'drinks',
-    basePrice: 5000,
-    available: true,
-    imageUrl: 'https://example.com/drink-juice.jpg',
-    modifierGroups: [
-      {
-        groupId: 'fruit',
-        name: 'Fruta',
-        required: true,
-        multiSelect: false,
-        options: [
-          { optionId: 'orange', name: 'Naranja', price: 0 },
-          { optionId: 'passion-fruit', name: 'Maracuyá', price: 500 },
-          { optionId: 'mango', name: 'Mango', price: 500 }
-        ]
-      }
-    ]
+    productId: '6',
+    name: 'Hot Dog',
+    basePrice: 12000,
   },
   {
-    productId: 'dessert-brownie',
-    name: 'Brownie con Helado',
-    description: 'Brownie de chocolate caliente con helado de vainilla',
-    category: 'desserts',
+    productId: '7',
+    name: 'Fries',
     basePrice: 8000,
-    available: true,
-    imageUrl: 'https://example.com/dessert-brownie.jpg',
-    modifierGroups: []
   },
   {
-    productId: 'dessert-cheesecake',
-    name: 'Cheesecake',
-    description: 'Pastel de queso con base de galleta',
-    category: 'desserts',
+    productId: '8',
+    name: 'Onion Rings',
     basePrice: 9000,
-    available: true,
-    imageUrl: 'https://example.com/dessert-cheesecake.jpg',
-    modifierGroups: [
-      {
-        groupId: 'topping',
-        name: 'Topping',
+  },
+  {
+    productId: '9',
+    name: 'Soda',
+    basePrice: 5000,
+  },
+  {
+    productId: '10',
+    name: 'Custom Burger',
+    basePrice: 18000,
+    modifiers: {
+      protein: {
+        required: true,
+        options: ['beef', 'chicken', 'veggie'],
+      },
+      toppings: {
         required: false,
-        multiSelect: false,
-        options: [
-          { optionId: 'strawberry', name: 'Fresas', price: 1500 },
-          { optionId: 'chocolate', name: 'Chocolate', price: 1500 },
-          { optionId: 'caramel', name: 'Caramelo', price: 1500 }
-        ]
-      }
-    ]
-  }
+        max: 3,
+        options: ['lettuce', 'tomato', 'onion', 'cheese'],
+      },
+      sauces: {
+        required: false,
+        max: 2,
+        options: ['ketchup', 'mayo', 'bbq'],
+      },
+    },
+  },
 ];
 
 async function tableExists(tableName: string): Promise<boolean> {
@@ -356,24 +192,24 @@ async function createTable(tableConfig: any): Promise<void> {
   }
 }
 
-async function seedProducts(): Promise<void> {
-  console.log('\nSeeding sample products...');
+async function seedMenu(): Promise<void> {
+  console.log('\nSeeding menu items...');
   
-  for (const product of SAMPLE_PRODUCTS) {
+  for (const item of SAMPLE_MENU) {
     try {
       await dynamoDB.send(
         new PutCommand({
-          TableName: 'products',
+          TableName: 'menu',
           Item: {
-            ...product,
+            ...item,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           }
         })
       );
-      console.log(`✓ Added product: ${product.name}`);
+      console.log(`✓ Added menu item: ${item.name}`);
     } catch (error) {
-      console.error(`✗ Error adding product ${product.name}:`, error);
+      console.error(`✗ Error adding menu item ${item.name}:`, error);
     }
   }
 }
@@ -391,21 +227,20 @@ async function main() {
     console.log('Creating tables...');
     await createTable(TABLES.orders);
     await createTable(TABLES.timeline);
-    await createTable(TABLES.products);
+    await createTable(TABLES.menu);
     await createTable(TABLES.idempotency);
     
     // Seed data
-    await seedProducts();
+    await seedMenu();
     
     console.log('\n✅ Database initialization completed successfully!');
-    console.log('\nAvailable products by category:');
-    console.log('  • Burgers: 2 items');
-    console.log('  • Pizzas: 2 items');
-    console.log('  • Pastas: 1 item');
-    console.log('  • Salads: 1 item');
-    console.log('  • Drinks: 2 items');
-    console.log('  • Desserts: 2 items');
-    console.log('\nTotal: 10 products');
+    console.log('\nMenu items created:');
+    console.log('  • ID 1-5: Burgers (5 items)');
+    console.log('  • ID 6: Hot Dog');
+    console.log('  • ID 7-8: Sides (2 items)');
+    console.log('  • ID 9: Drink');
+    console.log('  • ID 10: Custom Burger (with modifiers)');
+    console.log('\nTotal: 10 menu items');
     
   } catch (error) {
     console.error('\n❌ Error initializing database:', error);
