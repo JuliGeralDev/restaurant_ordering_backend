@@ -1,10 +1,13 @@
 import { orderRepository, timelineRepository, idempotencyRepository } from '@/infrastructure/container';
 import { PlaceOrderUseCase } from '@/application/use-cases/place-order.use-case';
+import { OrderService } from '@/application/services/order.service';
 import { apiHandler } from './utils/api-handler';
 import { validator } from './utils/field-validator';
 import { ValidationError } from '@/domain/errors/validation.error';
 import { IdempotencyConflictError } from '@/domain/errors/idempotency-conflict.error';
 import { LambdaEvent } from './types/lambda-event.type';
+
+const orderService = new OrderService(orderRepository);
 
 export const handler = (event: LambdaEvent) =>
   apiHandler(
@@ -38,7 +41,8 @@ export const handler = (event: LambdaEvent) =>
 
       const useCase = new PlaceOrderUseCase(
         orderRepository,
-        timelineRepository
+        timelineRepository,
+        orderService
       );
 
       const result = await useCase.execute({

@@ -1,10 +1,7 @@
-import { OrderRepository } from '@/domain/repositories/order.repository';
-import { TimelineRepository } from '@/domain/repositories/timeline.repository';
-import { TimelineEvent } from '@/domain/entities/timeline-event.entity';
-import { OrderPricingService } from '@/application/services/order-pricing.service';
 import { Order } from '@/domain/entities/order.entity';
-import { NotFoundError } from '@/domain/errors/not-found.error';
 import { randomUUID } from 'crypto';
+import { OrderService } from '@/application/services/order.service';
+import { CartOperationOrchestrator } from '@/application/services/cart-operation.orchestrator';
 
 export interface RemoveItemInput {
   orderId: string;
@@ -18,61 +15,29 @@ export interface RemoveItemOutput {
 
 export class RemoveItemFromCartUseCase {
   constructor(
-    private readonly orderRepository: OrderRepository,
-    private readonly timelineRepository: TimelineRepository,
-    private readonly orderPricingService: OrderPricingService
-  ) { }
+    private readonly orderService: OrderService,
+    private readonly cartOrchestrator: CartOperationOrchestrator
+  ) {}
 
   async execute(input: RemoveItemInput): Promise<RemoveItemOutput> {
-    const order = await this.orderRepository.findById(input.orderId);
+    const order = await this.orderService.findOrThrow(input.orderId);
+    
+    this.orderService.findItemOrThrow(order, input.productId);
 
-    if (!order) {
-      throw new NotFoundError('Order not found');
-    }
-
-    const existingItem = order.items.find(
-      (item) => item.productId === input.productId
-    );
-
-    if (!existingItem) {
-      throw new NotFoundError('Item not found in cart');
-    }
+    order.items = order.items.filter((item) => item.productId !== input.productId);
 
     const correlationId = randomUUID();
 
-    //  Remove item
-    order.items = order.items.filter(
-      (item) => item.productId !== input.productId
-    );
-
-    //  Recalculate pricing
-    const pricingEvent = this.orderPricingService.recalculate({
+    await this.cartOrchestrator.saveCartOperation({
       order,
       orderId: input.orderId,
       userId: input.userId,
       correlationId,
-    });
-
-    await this.orderRepository.save(order);
-
-    //  Event: item removed
-    const removeEvent: TimelineEvent = {
-      eventId: randomUUID(),
-      timestamp: new Date().toISOString(),
-      orderId: input.orderId,
-      userId: input.userId,
-      type: 'CART_ITEM_REMOVED',
-      source: 'api',
-      correlationId,
-      payload: {
+      eventType: 'CART_ITEM_REMOVED',
+      eventPayload: {
         productId: input.productId,
       },
-    };
-
-    await this.timelineRepository.save(removeEvent);
-
-    //  Event: pricing recalculated
-    await this.timelineRepository.save(pricingEvent);
+    });
 
     return {
       order,
