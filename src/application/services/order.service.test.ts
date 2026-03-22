@@ -89,6 +89,7 @@ describe('OrderService', () => {
       status: 'CREATED',
       items: [
         {
+          cartItemId: 'cart-item-1',
           productId: 'prod-1',
           name: 'Burger',
           basePrice: new Money(10000),
@@ -96,6 +97,7 @@ describe('OrderService', () => {
           modifiers: [],
         },
         {
+          cartItemId: 'cart-item-2',
           productId: 'prod-2',
           name: 'Fries',
           basePrice: new Money(5000),
@@ -141,6 +143,7 @@ describe('OrderService', () => {
       status: 'CREATED',
       items: [
         {
+          cartItemId: 'cart-item-3',
           productId: 'prod-1',
           name: 'Burger',
           basePrice: new Money(10000),
@@ -172,6 +175,63 @@ describe('OrderService', () => {
       const emptyOrder = { ...mockOrder, items: [] };
       const result = orderService.hasItem(emptyOrder, 'prod-1');
       expect(result).toBe(false);
+    });
+  });
+
+  describe('findItemByCartItemIdOrThrow', () => {
+    const mockOrder: Order = {
+      orderId: 'order-123',
+      userId: 'user-456',
+      status: 'CREATED',
+      items: [
+        {
+          cartItemId: 'cart-item-10',
+          productId: 'prod-1',
+          name: 'Burger',
+          basePrice: new Money(10000),
+          quantity: 2,
+          modifiers: [],
+        },
+        {
+          cartItemId: 'cart-item-11',
+          productId: 'prod-1',
+          name: 'Burger',
+          basePrice: new Money(10000),
+          quantity: 1,
+          modifiers: [
+            { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+          ],
+        },
+      ],
+      pricing: {
+        subtotal: new Money(0),
+        tax: new Money(0),
+        serviceFee: new Money(0),
+        total: new Money(0),
+      },
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    };
+
+    it('should return item when found by cartItemId', () => {
+      const item = orderService.findItemByCartItemIdOrThrow(mockOrder, 'cart-item-10');
+
+      expect(item.cartItemId).toBe('cart-item-10');
+      expect(item.productId).toBe('prod-1');
+      expect(item.quantity).toBe(2);
+    });
+
+    it('should return correct item when multiple items with same productId exist', () => {
+      const item = orderService.findItemByCartItemIdOrThrow(mockOrder, 'cart-item-11');
+
+      expect(item.cartItemId).toBe('cart-item-11');
+      expect(item.quantity).toBe(1);
+      expect(item.modifiers.length).toBe(1);
+    });
+
+    it('should throw NotFoundError when cartItemId not found', () => {
+      expect(() => orderService.findItemByCartItemIdOrThrow(mockOrder, 'cart-item-999')).toThrow(NotFoundError);
+      expect(() => orderService.findItemByCartItemIdOrThrow(mockOrder, 'cart-item-999')).toThrow('Cart item not found');
     });
   });
 });

@@ -68,12 +68,17 @@ export class AddItemToCartUseCase {
     }
 
     let eventType: 'CART_ITEM_ADDED' | 'CART_ITEM_UPDATED';
-    const existingItem = order.items.find((item) => item.productId === newItem.productId);
+    // Check if an identical item (same product AND same modifiers) already exists
+    const existingItem = order.items.find((item) => 
+      this.cartItemService.areItemsIdentical(item, newItem)
+    );
 
     if (existingItem) {
+      // Same product with same modifiers - just increase quantity
       existingItem.quantity += newItem.quantity;
       eventType = 'CART_ITEM_UPDATED';
     } else {
+      // Different product or different modifiers - add as new item
       order.items.push(newItem);
       eventType = 'CART_ITEM_ADDED';
     }

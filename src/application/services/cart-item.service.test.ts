@@ -39,13 +39,14 @@ describe('CartItemService', () => {
 
       const result = await cartItemService.resolveProductWithModifiers('prod-1', 2);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         productId: 'prod-1',
         name: 'Hamburguesa Clásica',
         basePrice: new Money(1200),
         quantity: 2,
         modifiers: [],
       });
+      expect(result.cartItemId).toBeTruthy();
 
       expect(mockMenuRepository.findById).toHaveBeenCalledWith('prod-1');
       expect(mockModifierSelectionService.resolve).toHaveBeenCalledWith(mockProduct, undefined);
@@ -91,13 +92,14 @@ describe('CartItemService', () => {
         modifiersInput
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         productId: 'prod-8',
         name: 'Pizza Personalizada',
         basePrice: new Money(1800),
         quantity: 1,
         modifiers: resolvedModifiers,
       });
+      expect(result.cartItemId).toBeTruthy();
 
       expect(mockMenuRepository.findById).toHaveBeenCalledWith('prod-8');
       expect(mockModifierSelectionService.resolve).toHaveBeenCalledWith(
@@ -210,6 +212,163 @@ describe('CartItemService', () => {
       await cartItemService.resolveProductWithModifiers('prod-10', 1, modifiersInput);
 
       expect(modifiersInput.length).toBe(originalLength);
+    });
+  });
+
+  describe('areItemsIdentical', () => {
+    it('should return true for identical items with same product and no modifiers', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Burger',
+        basePrice: new Money(1000),
+        quantity: 1,
+        modifiers: [],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-1',
+        name: 'Burger',
+        basePrice: new Money(1000),
+        quantity: 2,
+        modifiers: [],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(true);
+    });
+
+    it('should return false for different products', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Burger',
+        basePrice: new Money(1000),
+        quantity: 1,
+        modifiers: [],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-2',
+        name: 'Fries',
+        basePrice: new Money(500),
+        quantity: 1,
+        modifiers: [],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(false);
+    });
+
+    it('should return true for same product with same modifiers', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+        ],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 2,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+        ],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(true);
+    });
+
+    it('should return false for same product with different modifiers', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+        ],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'mustard', name: 'Mustard', price: new Money(50) },
+        ],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(false);
+    });
+
+    it('should return false for same product with different number of modifiers', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+        ],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+        ],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(false);
+    });
+
+    it('should return true for same product with same modifiers in different order', () => {
+      const item1 = {
+        cartItemId: 'cart-1',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 1,
+        modifiers: [
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+        ],
+      };
+
+      const item2 = {
+        cartItemId: 'cart-2',
+        productId: 'prod-1',
+        name: 'Hot Dog',
+        basePrice: new Money(800),
+        quantity: 2,
+        modifiers: [
+          { groupId: 'protein', optionId: 'beef', name: 'Beef', price: new Money(0) },
+          { groupId: 'sauce', optionId: 'ketchup', name: 'Ketchup', price: new Money(50) },
+        ],
+      };
+
+      expect(cartItemService.areItemsIdentical(item1, item2)).toBe(true);
     });
   });
 });

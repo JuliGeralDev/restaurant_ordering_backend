@@ -13,6 +13,7 @@ describe('PricingService', () => {
     it('should calculate subtotal for single item without modifiers', () => {
       const items: OrderItem[] = [
         {
+          cartItemId: 'cart-1',
           productId: '1',
           name: 'Burger',
           basePrice: new Money(10000),
@@ -28,6 +29,7 @@ describe('PricingService', () => {
     it('should calculate subtotal for item with modifiers', () => {
       const items: OrderItem[] = [
         {
+          cartItemId: 'cart-2',
           productId: '1',
           name: 'Burger',
           basePrice: new Money(10000),
@@ -51,6 +53,7 @@ describe('PricingService', () => {
     it('should calculate subtotal for multiple items', () => {
       const items: OrderItem[] = [
         {
+          cartItemId: 'cart-3',
           productId: '1',
           name: 'Burger',
           basePrice: new Money(10000),
@@ -58,6 +61,7 @@ describe('PricingService', () => {
           modifiers: [],
         },
         {
+          cartItemId: 'cart-4',
           productId: '2',
           name: 'Fries',
           basePrice: new Money(5000),
@@ -79,6 +83,7 @@ describe('PricingService', () => {
     it('should calculate subtotal with multiple modifiers', () => {
       const items: OrderItem[] = [
         {
+          cartItemId: 'cart-5',
           productId: '1',
           name: 'Custom Burger',
           basePrice: new Money(10000),

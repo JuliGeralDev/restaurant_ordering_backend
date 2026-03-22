@@ -6,7 +6,7 @@ import { CartOperationOrchestrator } from '@/application/services/cart-operation
 export interface RemoveItemInput {
   orderId: string;
   userId: string;
-  productId: string;
+  cartItemId: string; // Unique identifier for the specific cart item instance
 }
 
 export interface RemoveItemOutput {
@@ -22,9 +22,9 @@ export class RemoveItemFromCartUseCase {
   async execute(input: RemoveItemInput): Promise<RemoveItemOutput> {
     const order = await this.orderService.findOrThrow(input.orderId);
     
-    this.orderService.findItemOrThrow(order, input.productId);
+    this.orderService.findItemByCartItemIdOrThrow(order, input.cartItemId);
 
-    order.items = order.items.filter((item) => item.productId !== input.productId);
+    order.items = order.items.filter((item) => item.cartItemId !== input.cartItemId);
 
     const correlationId = randomUUID();
 
@@ -35,7 +35,7 @@ export class RemoveItemFromCartUseCase {
       correlationId,
       eventType: 'CART_ITEM_REMOVED',
       eventPayload: {
-        productId: input.productId,
+        cartItemId: input.cartItemId,
       },
     });
 

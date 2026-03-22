@@ -12,7 +12,7 @@ import { CartOperationOrchestrator } from '@/application/services/cart-operation
 export interface UpdateItemInCartInput {
   orderId: string;
   userId: string;
-  productId: string;
+  cartItemId: string; // Unique identifier for the specific cart item instance
   quantity: number;
   modifiers?: ModifierSelectionInput[];
 }
@@ -35,15 +35,18 @@ export class UpdateItemInCartUseCase {
   async execute(input: UpdateItemInCartInput): Promise<UpdateItemInCartOutput> {
     const order = await this.orderService.findOrThrow(input.orderId);
     
-    this.orderService.findItemOrThrow(order, input.productId);
+    const existingItem = this.orderService.findItemByCartItemIdOrThrow(order, input.cartItemId);
 
     const updatedItem = await this.cartItemService.resolveProductWithModifiers(
-      input.productId,
+      existingItem.productId,
       input.quantity,
       input.modifiers
     );
 
-    const existingItemIndex = order.items.findIndex((item) => item.productId === input.productId);
+    // Preserve the cartItemId when updating
+    updatedItem.cartItemId = input.cartItemId;
+
+    const existingItemIndex = order.items.findIndex((item) => item.cartItemId === input.cartItemId);
     order.items[existingItemIndex] = updatedItem;
 
     const correlationId = randomUUID();
@@ -55,6 +58,7 @@ export class UpdateItemInCartUseCase {
       correlationId,
       eventType: 'CART_ITEM_UPDATED',
       eventPayload: {
+        cartItemId: input.cartItemId,
         productId: updatedItem.productId,
         name: updatedItem.name,
         quantity: input.quantity,

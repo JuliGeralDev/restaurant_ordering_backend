@@ -39,6 +39,14 @@ export class OrderService {
     return item;
   }
 
+  findItemByCartItemIdOrThrow(order: Order, cartItemId: string): OrderItem {
+    const item = order.items.find((i) => i.cartItemId === cartItemId);
+    if (!item) {
+      throw new NotFoundError('Cart item not found');
+    }
+    return item;
+  }
+
   hasItem(order: Order, productId: string): boolean {
     return order.items.some((i) => i.productId === productId);
   }
