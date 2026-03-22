@@ -23,6 +23,34 @@ Serverless REST API for restaurant ordering with:
 - Docker: https://www.docker.com/products/docker-desktop
 - AWS CLI: https://aws.amazon.com/cli/
 
+### Managing Node.js Version with nvm
+
+If you don't have Node.js 18.x or need to switch versions, we recommend using **nvm** (Node Version Manager):
+
+**Install nvm:**
+
+- **Windows**: Download and install [nvm-windows](https://github.com/coreybutler/nvm-windows/releases)
+- **macOS/Linux**: Run this command:
+  ```bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+  ```
+
+**Use nvm to install and switch to Node.js 18:**
+
+```bash
+# Install Node.js 18 LTS
+nvm install 18
+
+# Use Node.js 18
+nvm use 18
+
+# Verify the version
+node --version  # Should show v18.x.x
+
+# (Optional) Set Node.js 18 as default
+nvm alias default 18
+```
+
 ## Getting Started
 
 ### Quick Setup (Recommended)
