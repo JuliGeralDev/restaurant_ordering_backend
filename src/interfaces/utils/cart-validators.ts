@@ -30,7 +30,8 @@ export interface ValidatedCartUpdateInput {
 export interface ValidatedCartRemovalInput {
   orderId: string;
   userId: string;
-  cartItemId: string;
+  cartItemId?: string;  // Remove specific item instance (decrement or delete)
+  productId?: string;   // Remove ALL instances of this product
 }
 
 export function validateAddItemRequest(body: CartBody): ValidatedCartMutationInput {
@@ -63,12 +64,18 @@ export function validateUpdateItemRequest(body: CartBody): ValidatedCartUpdateIn
 export function validateRemoveItemRequest(body: CartBody): ValidatedCartRemovalInput {
   validator.required('orderId', body.orderId);
   validator.required('userId', body.userId);
-  validator.required('cartItemId', body.cartItemId);
+
+  if (!body.cartItemId && !body.productId) {
+    throw new (require('@/domain/errors/validation.error').ValidationError)(
+      'Either cartItemId or productId is required'
+    );
+  }
 
   return {
     orderId: body.orderId!,
     userId: body.userId!,
-    cartItemId: body.cartItemId!,
+    cartItemId: body.cartItemId,
+    productId: body.productId,
   };
 }
 
