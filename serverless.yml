@@ -43,6 +43,12 @@ functions:
       - http:
           path: /orders/{orderId}
           method: get
+  getOrdersByUser:
+    handler: src/interfaces/get-orders-by-user.handler
+    events:
+      - http:
+          path: /orders
+          method: get
   placeOrder:
     handler: src/interfaces/place-order.handler
     events:
