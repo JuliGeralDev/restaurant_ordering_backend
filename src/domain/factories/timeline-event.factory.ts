@@ -1,5 +1,9 @@
 import { randomUUID } from 'crypto';
-import { TimelineEvent, TimelineEventType } from '@/domain/entities/timeline-event.entity';
+import {
+  TimelineEvent,
+  TimelineEventSource,
+  TimelineEventType,
+} from '@/domain/entities/timeline-event.entity';
 
 export interface CreateTimelineEventParams {
   orderId: string;
@@ -7,6 +11,7 @@ export interface CreateTimelineEventParams {
   type: TimelineEventType;
   correlationId: string;
   payload: Record<string, unknown>;
+  source?: TimelineEventSource;
 }
 
 export class TimelineEventFactory {
@@ -17,7 +22,7 @@ export class TimelineEventFactory {
       orderId: params.orderId,
       userId: params.userId,
       type: params.type,
-      source: 'api',
+      source: params.source ?? 'api',
       correlationId: params.correlationId,
       payload: params.payload,
     };

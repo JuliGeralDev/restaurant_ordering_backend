@@ -13,6 +13,7 @@ export interface PlaceOrderOutput {
   orderId: string;
   userId: string;
   status: string;
+  shouldScheduleProcessing: boolean;
 }
 
 export class PlaceOrderUseCase {
@@ -25,27 +26,51 @@ export class PlaceOrderUseCase {
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
     const order = await this.orderService.findOrThrow(input.orderId);
 
-    order.status = 'PLACED';
+    if (order.status === 'PLACED' || order.status === 'PROCESSING') {
+      return {
+        orderId: order.orderId,
+        userId: input.userId,
+        status: order.status,
+        shouldScheduleProcessing: false,
+      };
+    }
+
+    const previousStatus = order.status;
+    order.status = 'PROCESSING';
     order.updatedAt = new Date().toISOString();
 
     await this.orderRepository.save(order);
 
-    const event = TimelineEventFactory.create({
+    const orderPlacedEvent = TimelineEventFactory.create({
       orderId: order.orderId,
       userId: input.userId,
       type: 'ORDER_PLACED',
       correlationId: input.correlationId,
       payload: {
+        acceptedAt: order.updatedAt,
         status: order.status,
       },
     });
 
-    await this.timelineRepository.save(event);
+    const statusChangedEvent = TimelineEventFactory.create({
+      orderId: order.orderId,
+      userId: input.userId,
+      type: 'ORDER_STATUS_CHANGED',
+      correlationId: input.correlationId,
+      payload: {
+        from: previousStatus,
+        to: order.status,
+      },
+    });
+
+    await this.timelineRepository.save(orderPlacedEvent);
+    await this.timelineRepository.save(statusChangedEvent);
 
     return {
       orderId: order.orderId,
       userId: input.userId,
       status: order.status,
+      shouldScheduleProcessing: true,
     };
   }
 }

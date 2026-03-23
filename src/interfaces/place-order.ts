@@ -1,6 +1,7 @@
 import { orderRepository, timelineRepository, idempotencyRepository } from '@/infrastructure/container';
 import { PlaceOrderUseCase } from '@/application/use-cases/place-order.use-case';
 import { OrderService } from '@/application/services/order.service';
+import { OrderPlacementProcessorService } from '@/application/services/order-placement-processor.service';
 import { apiHandler } from './utils/api-handler';
 import { validator } from './utils/field-validator';
 import { ValidationError } from '@/domain/errors/validation.error';
@@ -8,6 +9,11 @@ import { IdempotencyConflictError } from '@/domain/errors/idempotency-conflict.e
 import { LambdaEvent } from './types/lambda-event.type';
 
 const orderService = new OrderService(orderRepository);
+const orderPlacementProcessor = new OrderPlacementProcessorService(
+  orderRepository,
+  timelineRepository,
+  orderService
+);
 
 export const handler = (event: LambdaEvent) =>
   apiHandler(
@@ -51,13 +57,27 @@ export const handler = (event: LambdaEvent) =>
         correlationId: key,
       });
 
+      if (result.shouldScheduleProcessing) {
+        orderPlacementProcessor.scheduleCompletion({
+          orderId,
+          userId,
+          correlationId: key,
+        });
+      }
+
+      const response = {
+        orderId: result.orderId,
+        userId: result.userId,
+        status: result.status,
+      };
+
       await idempotencyRepository.save({
         key,
-        response: result,
+        response,
         createdAt: new Date().toISOString(),
       });
 
-      return result;
+      return response;
     },
     { successStatusCode: 202 }
   );

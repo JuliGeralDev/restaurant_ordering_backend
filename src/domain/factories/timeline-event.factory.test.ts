@@ -151,5 +151,21 @@ describe('TimelineEventFactory', () => {
 
       expect(event.source).toBe('api');
     });
+
+    it('should allow overriding source for worker-originated events', () => {
+      const event = TimelineEventFactory.create({
+        orderId: 'order-123',
+        userId: 'user-456',
+        type: 'ORDER_STATUS_CHANGED',
+        correlationId: 'corr-789',
+        source: 'worker',
+        payload: {
+          from: 'PROCESSING',
+          to: 'PLACED',
+        },
+      });
+
+      expect(event.source).toBe('worker');
+    });
   });
 });

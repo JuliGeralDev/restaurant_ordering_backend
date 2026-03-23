@@ -10,6 +10,12 @@ Serverless REST API for restaurant ordering with:
 - **TypeScript**: Full type safety
 - **DynamoDB Local**: Local development with Docker
 
+## Frontend Repository
+
+The frontend for this project lives in a separate repository:
+
+- https://github.com/JuliGeralDev/restaurant_ordering_front
+
 ## Prerequisites
 
 | Tool | Required Version | Check |
@@ -22,6 +28,8 @@ Serverless REST API for restaurant ordering with:
 - Node.js: https://nodejs.org
 - Docker: https://www.docker.com/products/docker-desktop
 - AWS CLI: https://aws.amazon.com/cli/
+
+**Important:** Before running `npm run setup`, `npm run init:db`, or `docker-compose up -d`, make sure Docker Desktop is open and the Docker CLI is running correctly on your machine.
 
 ### Managing Node.js Version with nvm
 
@@ -62,6 +70,7 @@ cd restaurant_ordering_backend
 npm install
 
 # 2. Setup database (this takes ~15 seconds)
+#    - Requires Docker Desktop / Docker CLI to be running
 #    - Starts Docker container
 #    - Waits for DynamoDB to be ready
 #    - Creates tables
@@ -94,6 +103,8 @@ npm install
 ```
 
 #### Step 2: Start DynamoDB
+
+Make sure Docker Desktop is open and the Docker CLI is running before executing this step.
 
 ```bash
 docker-compose up -d

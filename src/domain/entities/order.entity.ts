@@ -1,6 +1,6 @@
 import { Money } from '../value-objects/money.vo';
 
-export type OrderStatus = 'CREATED' | 'PLACED';
+export type OrderStatus = 'CREATED' | 'PROCESSING' | 'PLACED';
 
 export interface OrderItemModifier {
   groupId: string;
